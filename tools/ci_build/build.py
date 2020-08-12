@@ -1612,8 +1612,7 @@ def main():
                 ]
             if args.enable_wcos:
                 cmake_extra_args.append(
-                    '-DCMAKE_TOOLCHAIN_FILE=' + os.path.join(
-                        source_dir, 'cmake', 'wcos_toolchain.cmake'))
+                    '-DCMAKE_USER_MAKE_RULES_OVERRIDE=wcos_rules_override.cmake')
 
         if (args.android or args.ios) and args.path_to_protoc_exe is None:
             # Cross-compiling for Android and iOS
