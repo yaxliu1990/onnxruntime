@@ -59,8 +59,10 @@ bool KernelRegistryManager::HasImplementationOf(const KernelRegistryManager& r, 
 Status KernelRegistryManager::SearchKernelRegistry(const onnxruntime::Node& node,
                                                    /*out*/ const KernelCreateInfo** kernel_create_info) const {
   const std::string& ptype = node.GetExecutionProviderType();
+
   if (ptype.empty()) {
-    return Status(ONNXRUNTIME, FAIL, "The node is not placed on any Execution Provider");
+    return ORT_MAKE_STATUS(ONNXRUNTIME, FAIL, "The node is not placed on any Execution Provider. '",
+                           node.Name(), "' ", node.OpType(), "(", node.Op()->since_version(), ")");
   }
   Status status;
   {
