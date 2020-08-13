@@ -123,9 +123,9 @@ Status SessionState::PopulateKernelCreateInfo(KernelRegistryManager& kernel_regi
     const KernelCreateInfo* kci = nullptr;
     ORT_RETURN_IF_ERROR(kernel_registry_manager.SearchKernelRegistry(node, &kci));
     // TEMP
+    std::cout << "PopulateKernelCreateInfo" << std::endl;
     ORT_ENFORCE(kci != nullptr, "SearchKernelRegistry return nullptr for node '",
-                node.Name(), "' ", node.OpType(), "(",
-                node.Op() != nullptr ? node.Op()->since_version() : -1, ")");
+                node.Name(), "' ", node.OpType());
 
     ORT_IGNORE_RETURN_VALUE(
         kernel_create_info_map_.insert({node.Index(), gsl::not_null<const KernelCreateInfo*>(kci)}));

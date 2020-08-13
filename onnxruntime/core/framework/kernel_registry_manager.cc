@@ -61,10 +61,16 @@ Status KernelRegistryManager::SearchKernelRegistry(const onnxruntime::Node& node
   const std::string& ptype = node.GetExecutionProviderType();
 
   if (ptype.empty()) {
-    return ORT_MAKE_STATUS(ONNXRUNTIME, FAIL, "The node is not placed on any Execution Provider. '",
-                           node.Name(), "' ", node.OpType(), "(",
-                           node.Op() != nullptr ? node.Op()->since_version() : -1, ")");
+    std::cout << "SearchKernelRegistry" << std::endl;
+
+    std::ostringstream errormsg;
+    errormsg << "The node is not placed on any Execution Provider. " << node.OpType();
+    if (node.Op() != nullptr) errormsg << "(" << node.Op()->since_version() << ")";
+    if (!node.Name().empty()) errormsg << " (node " << node.Name() << ").";
+
+    return Status(ONNXRUNTIME, FAIL, errormsg.str());
   }
+
   Status status;
   {
     for (auto& registry : custom_kernel_registries_) {
