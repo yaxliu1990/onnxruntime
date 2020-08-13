@@ -6,7 +6,9 @@
 namespace onnxruntime {
 BFCArena::BFCArena(std::unique_ptr<IDeviceAllocator> resource_allocator,
                    size_t total_memory,
-                   ArenaExtendStrategy arena_extend_strategy)
+                   ArenaExtendStrategy arena_extend_strategy,
+                   int initial_chunk_size_bytes,
+                   int max_dead_bytes_per_chunk)
     : IArenaAllocator(OrtMemoryInfo(resource_allocator->Info().name,
                                     OrtAllocatorType::OrtArenaAllocator,
                                     resource_allocator->Info().device,
@@ -14,13 +16,15 @@ BFCArena::BFCArena(std::unique_ptr<IDeviceAllocator> resource_allocator,
                                     resource_allocator->Info().mem_type)),
       device_allocator_(std::move(resource_allocator)),
       free_chunks_list_(kInvalidChunkHandle),
-      next_allocation_id_(1) {
+      next_allocation_id_(1),
+      initial_chunk_size_bytes_(initial_chunk_size_bytes),
+      max_dead_bytes_per_chunk_(max_dead_bytes_per_chunk) {
   LOGS_DEFAULT(INFO) << "Creating BFCArena for " << device_allocator_->Info().name;
 
   // TODO - consider to make the initial chunk size and max 'fragmentation' (kMaxDeadBytesInChunk) values configurable.
   // But first we need to add a mechanism to allow that sort of low level configuration to be done
   // without adding separate parameters to SessionOptions for every single one of them.
-  curr_region_allocation_bytes_ = RoundedBytes(std::min(total_memory, size_t{1048576}));
+  curr_region_allocation_bytes_ = RoundedBytes(std::min(total_memory, static_cast<size_t>(initial_chunk_size_bytes_)));
 
   // Allocate the requested amount of memory.
   memory_limit_ = total_memory;
@@ -312,10 +316,9 @@ void* BFCArena::FindChunkPtr(BinNum bin_num, size_t rounded_bytes,
 
         // If we can break the size of the chunk into two reasonably large
         // pieces, do so.  In any case don't waste more than
-        // kMaxDeadBytesInChunk bytes on padding this alloc.
-        const int64_t kMaxDeadBytesInChunk = 128 << 20;  // 128mb
+        // max_dead_bytes_per_chunk bytes on padding this alloc.
         if (chunk->size >= rounded_bytes * 2 ||
-            static_cast<int64_t>(chunk->size) - rounded_bytes >= kMaxDeadBytesInChunk) {
+            static_cast<int64_t>(chunk->size) - static_cast<int64_t>(rounded_bytes) >= max_dead_bytes_per_chunk_) {
           SplitChunk(h, rounded_bytes);
           chunk = ChunkFromHandle(h);  // Update chunk pointer in case it moved
         }
