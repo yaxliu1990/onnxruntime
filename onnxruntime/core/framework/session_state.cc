@@ -122,6 +122,11 @@ Status SessionState::PopulateKernelCreateInfo(KernelRegistryManager& kernel_regi
   for (auto& node : graph_.Nodes()) {
     const KernelCreateInfo* kci = nullptr;
     ORT_RETURN_IF_ERROR(kernel_registry_manager.SearchKernelRegistry(node, &kci));
+    // TEMP
+    ORT_ENFORCE(kci != nullptr, "SearchKernelRegistry return nullptr for node '",
+                node.Name(), "' ", node.OpType(), "(",
+                node.Op() != nullptr ? node.Op()->since_version() : -1, ")");
+
     ORT_IGNORE_RETURN_VALUE(
         kernel_create_info_map_.insert({node.Index(), gsl::not_null<const KernelCreateInfo*>(kci)}));
   }

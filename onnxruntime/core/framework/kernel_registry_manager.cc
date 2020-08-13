@@ -62,7 +62,8 @@ Status KernelRegistryManager::SearchKernelRegistry(const onnxruntime::Node& node
 
   if (ptype.empty()) {
     return ORT_MAKE_STATUS(ONNXRUNTIME, FAIL, "The node is not placed on any Execution Provider. '",
-                           node.Name(), "' ", node.OpType(), "(", node.Op()->since_version(), ")");
+                           node.Name(), "' ", node.OpType(), "(",
+                           node.Op() != nullptr ? node.Op()->since_version() : -1, ")");
   }
   Status status;
   {
