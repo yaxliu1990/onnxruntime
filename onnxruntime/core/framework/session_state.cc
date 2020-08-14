@@ -119,22 +119,20 @@ void SessionState::CreateGraphInfo() {
 }
 
 Status SessionState::PopulateKernelCreateInfo(KernelRegistryManager& kernel_registry_manager) {
-  std::cout << "PopulateKernelCreateInfo" << std::endl;
   for (auto& node : graph_.Nodes()) {
     const KernelCreateInfo* kci = nullptr;
     ORT_RETURN_IF_ERROR(kernel_registry_manager.SearchKernelRegistry(node, &kci));
     // TEMP
+    std::cout << "PopulateKernelCreateInfo" << std::endl;
     ORT_ENFORCE(kci != nullptr, "SearchKernelRegistry return nullptr for node '",
                 node.Name(), "' ", node.OpType());
 
     ORT_IGNORE_RETURN_VALUE(
         kernel_create_info_map_.insert({node.Index(), gsl::not_null<const KernelCreateInfo*>(kci)}));
   }
-  std::cout << "PopulateKernelCreateInfo done" << std::endl;
 
   for (const auto& entry : subgraph_session_states_) {
     for (const auto& name_to_subgraph_session_state : entry.second) {
-      std::cout << "PopulateKernelCreateInfo for subgraph" << std::endl;
       SessionState& subgraph_session_state = *name_to_subgraph_session_state.second;
       ORT_RETURN_IF_ERROR(subgraph_session_state.PopulateKernelCreateInfo(kernel_registry_manager));
     }
