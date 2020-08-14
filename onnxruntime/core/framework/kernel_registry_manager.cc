@@ -63,7 +63,10 @@ Status KernelRegistryManager::SearchKernelRegistry(const onnxruntime::Node& node
   const std::string& ptype = node.GetExecutionProviderType();
 
   if (ptype.empty()) {
-    std::cout << "SearchKernelRegistry" << std::endl;
+    std::cout << "SearchKernelRegistry empty EP" << std::endl;
+    std::cout << "SearchKernelRegistry Node OpType " << node.OpType() << std::endl;
+    std::cout << "SearchKernelRegistry Node Name " << node.Name() << std::endl;
+    std::cout << "SearchKernelRegistry Node Op" << node.Op() << std::endl;
 
     std::ostringstream errormsg;
     errormsg << "The node is not placed on any Execution Provider. " << node.OpType();

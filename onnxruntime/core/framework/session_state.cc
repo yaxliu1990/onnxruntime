@@ -135,6 +135,9 @@ Status SessionState::PopulateKernelCreateInfo(KernelRegistryManager& kernel_regi
   for (const auto& entry : subgraph_session_states_) {
     for (const auto& name_to_subgraph_session_state : entry.second) {
       std::cout << "PopulateKernelCreateInfo for subgraph" << std::endl;
+      // TEMP
+      ORT_ENFORCE(name_to_subgraph_session_state.second != nullptr,
+                  "Entry in subgraph_session_state with nullptr for ", name_to_subgraph_session_state.first);
       SessionState& subgraph_session_state = *name_to_subgraph_session_state.second;
       ORT_RETURN_IF_ERROR(subgraph_session_state.PopulateKernelCreateInfo(kernel_registry_manager));
     }
