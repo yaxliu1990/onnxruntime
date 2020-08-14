@@ -14,6 +14,8 @@ std::unique_ptr<OpKernel> KernelRegistryManager::CreateKernel(const onnxruntime:
                                                               const IExecutionProvider& execution_provider,
                                                               const SessionState& session_state,
                                                               const KernelCreateInfo& kernel_create_info) const {
+  ORT_ENFORCE(kernel_create_info.kernel_def != nullptr, "KCI will missing kernel_def");
+
   OpKernelInfo kernel_info(node, *kernel_create_info.kernel_def, execution_provider,
                            session_state.GetConstantInitializedTensors(),
                            session_state.GetOrtValueNameIdxMap(),
